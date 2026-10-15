@@ -1,0 +1,176 @@
+.idea/
+__pycache__/
+LabletAnomaly.egg-info/
+logs/*
+
+# =============================
+# Python
+# =============================
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.pyo
+
+# Virtual env / venv
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# =============================
+# Logs / Cache / Temp
+# =============================
+*.log
+*.out
+*.err
+*.tmp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Python cache
+.cache/
+pytest_cache/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Torch / ML
+*.pt
+*.pth
+*.ckpt
+*.onnx
+lightning_logs/
+wandb/
+mlruns/
+runs/
+tensorboard/
+**/checkpoints/
+
+# =============================
+# OS / Editor
+# =============================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VSCode / JetBrains
+.vscode/
+.idea/
+*.iml
+
+# =============================
+# Build / Distribution
+# =============================
+build/
+dist/
+*.egg
+*.egg-info
+.eggs/
+pip-wheel-metadata/
+wheels/
+*.whl
+tox.ini
+pyproject.toml
+setup.cfg
+
+
+# =============================
+# Data / Results
+# =============================
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.jsonl
+*.npz
+*.npy
+*.h5
+*.pkl
+*.pickle
+*.mat
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# Large data dirs
+data/
+results/
+outputs/
+logs/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Local environments
+.venv/
+venv/
+env/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Local credentials
+.env
+.env.*
+!.env.example
+
+# Datasets and downloaded models
+/data/
+/dataset/
+/datasets/
+/weights/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+
+# Experiment outputs
+/logs/
+/outputs/
+/results/
+/debug_can/
+/private_submission/
+wandb/
+*.log
+
+# Downloaded archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.tar.xz
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# =============================
+# Hidden files (dotfiles)
+# =============================
+.*
+!.gitignore
+!.gitattributes
+!.gitmodules
