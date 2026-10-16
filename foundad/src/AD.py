@@ -50,17 +50,12 @@ def _build_model(meta: Dict[str, Any]) -> VisionModule:
     )
 
 @torch.inference_mode()
-def _evaluate_single_ckpt(ckpt: Path, cfg: Dict[str, Any]) -> None:
-    
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    model = _build_model(cfg["meta"])
-    state = torch.load(ckpt, map_location="cpu")
-    model.predictor.load_state_dict(state["predictor"])
-    if model.projector is not None:
-        model.projector.load_state_dict(state["projector"])
-    model.to(device)
-    model.eval()
+def _evaluate_model_impl(
+    model: VisionModule,
+    cfg: Dict[str, Any],
+    checkpoint_name: str,
+) -> Dict[str, float]:
+    device = next(model.parameters()).device
 
     crop = cfg["meta"]["crop_size"]
     n_layer = cfg["meta"].get("n_layer", 3)
@@ -71,7 +66,7 @@ def _evaluate_single_ckpt(ckpt: Path, cfg: Dict[str, Any]) -> None:
     classnames = cfg["data"]["classnames"]
     K = cfg["testing"].get("K_top_ad2", 10)
     
-    logger.info(f"Evaluating {ckpt.name} on {dataset_name}")
+    logger.info(f"Evaluating {checkpoint_name} on {dataset_name}")
     
     os.makedirs(Path(cfg["logging"]["folder"]), exist_ok=True)
     csv_path = (
@@ -180,7 +175,7 @@ def _evaluate_single_ckpt(ckpt: Path, cfg: Dict[str, Any]) -> None:
             pro_030,
         )
         csv_logger.log(
-            ckpt.name,
+            checkpoint_name,
             cls,
             inst["auroc"],
             inst["aupr"],
@@ -214,7 +209,7 @@ def _evaluate_single_ckpt(ckpt: Path, cfg: Dict[str, Any]) -> None:
     np.mean(pro_auc_030),
     )
     csv_logger.log(
-        ckpt.name,
+        checkpoint_name,
         "Mean",
         np.mean(inst_auc),
         np.mean(inst_aupr),
@@ -224,6 +219,56 @@ def _evaluate_single_ckpt(ckpt: Path, cfg: Dict[str, Any]) -> None:
     )
 
     logger.info("Official evaluation results saved to %s", csv_path)
+    return {
+        "inst_auroc": float(np.mean(inst_auc)),
+        "inst_aupr": float(np.mean(inst_aupr)),
+        "pix_auroc": float(np.mean(pix_auc)),
+        "au_pro_005": float(np.mean(pro_auc_005)),
+        "au_pro_030": float(np.mean(pro_auc_030)),
+    }
+
+@torch.inference_mode()
+def evaluate_model(
+    model: VisionModule,
+    cfg: Dict[str, Any],
+    checkpoint_name: str = "in_memory",
+) -> Dict[str, float]:
+    # Preserve each module's mode, including frozen encoders.
+    original_modes = [
+        (module, module.training)
+        for module in model.modules()
+    ]
+
+    try:
+        model.eval()
+        return _evaluate_model_impl(model, cfg, checkpoint_name)
+    finally:
+        for module, was_training in original_modes:
+            module.training = was_training
+
+def _evaluate_single_ckpt(
+    ckpt: Path,
+    cfg: Dict[str, Any],
+) -> Dict[str, float]:
+    device = torch.device(
+        "cuda:0" if torch.cuda.is_available() else "cpu"
+    )
+
+    model = _build_model(cfg["meta"])
+    state = torch.load(ckpt, map_location="cpu")
+    model.predictor.load_state_dict(state["predictor"])
+
+    if model.projector is not None:
+        model.projector.load_state_dict(state["projector"])
+
+    del state
+    model.to(device)
+
+    return evaluate_model(
+        model,
+        cfg,
+        checkpoint_name=ckpt.name,
+    )
 
 @torch.inference_mode()
 def _demo(ckpt: Path, cfg: Dict[str, Any]) -> None:

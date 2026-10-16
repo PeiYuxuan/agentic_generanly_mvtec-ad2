@@ -3,7 +3,7 @@ defaults:
   - _self_
   - app: train_dinov3 # merge/extend on top of app: default
 
-diy_name: "_ad2_smoke"
+diy_name: "_ad2_30ep_v1"
 
 # train / AD
 mode: train
@@ -36,7 +36,7 @@ data:
 
 optimization:
   weight_decay: 1e-4
-  epochs: 3
+  epochs: 30
   lr: 0.001
   lr_config: const # const, cosine, step, cosine_warmup
   min_lr: 1e-4 # for cosine and cosine_warmup
@@ -66,3 +66,10 @@ hydra:
   output_subdir: null
   job:
     chdir: false
+
+monitoring:
+  console_updates_per_epoch: 10
+  save_every_epochs: 5
+  eval_every_epochs: 5
+  smoothing_window: null
+  max_plot_points: 3000
